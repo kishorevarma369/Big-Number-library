@@ -86,22 +86,18 @@ class bignum
       while(i>0)
       {
         number.push_back(Some_val[i]);
-        cout<<"added "<<Some_val[i]<<'\n';
         i--;
       }
       if(Some_val[i]>='0'&&Some_val[i]<='9')
       {
         number.push_back(Some_val[i]);
-        cout<<"added in last "<<Some_val[i]<<'\n';
         sign=0;
       }
       else
       {
         if(Some_val[i]=='-') sign=1;
         else sign=0;
-        cout<<"found sign "<<Some_val[i]<<'\n';
       }
-      cout<<"const char";
     }
     bignum(string Some_val)
     {
@@ -124,7 +120,18 @@ class bignum
         Some_val/=10;
       }
     }
-
+    bignum mod10power(int x)
+    {
+      bignum c;
+      int len=number.size();
+      if(x<len)
+      {
+        for (int i=0;i<x; i++) c.number.push_back(number[i]);
+      }
+      else return *this;
+      c.padding_handler();
+      return c;
+    }
     //handle output of bignum
     friend ostream& operator <<(ostream & out,const bignum &outbmember);
     //handle input of bignum
@@ -154,7 +161,59 @@ class bignum
     friend int operator !=(const bignum &One_val,const bignum &Two_val);
     friend int truecomp(bignum,bignum);//essential for comparision :)
 
+    friend bignum operator *(bignum &One_val,int Other_Val);
+    friend bignum operator *=(bignum &One_val,int Other_Val);
+
+    //friend bignum operator ^(bignum &One_val,int Other_Val);
+    friend bignum xpowery(int x,int y);
 };
+
+bignum xpowery(int x,int y)
+{
+  bignum One_val=x;
+  if(y<1)
+  {
+    One_val.number.clear();
+    One_val.number.push_back('0');
+    return One_val;
+  }
+  while(y!=1)
+  {
+    One_val*=x;
+    y--;
+  }
+  return One_val;
+}
+
+bignum operator *=(bignum &One_val,int Other_Val)
+{
+  int i=0,j=0,carry=0,sizes=One_val.number.size();
+  while (i<sizes)
+  {
+    j=((One_val.number[i]-'0')*Other_Val)+carry;
+    carry=0;
+    if(j>9)
+    {
+      One_val.number[i]=j%10+'0';
+      carry=j/10;
+    }
+    else One_val.number[i]=j%10+'0';
+    i++;
+  }
+  while(carry!=0)
+  {
+    One_val.number.push_back(carry%10+'0');
+    carry/=10;
+  }
+  return One_val;
+}
+
+bignum operator *(bignum &One_val,int Other_Val)
+{
+  bignum Two_val=One_val;
+  Two_val*=Other_Val;
+  return Two_val;
+}
 
 
 int truecomp(bignum One_val,bignum Two_val)
